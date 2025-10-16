@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Country Info App</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.3.2/css/flag-icons.min.css"/>
+  
+  <style>
+      
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-container {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        /* Search input updated , added typing Capability */
+        .search-section {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-input {
+            position: relative;
+        }
+
+        .search-input input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 2.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .search-input input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 10;
+            margin-top: 0.5rem;
+        }
+
+        .search-results button {
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .search-results button:hover {
+            background-color: #f0f9ff;
+            color: #2563eb;
+        }
+
+    .borders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .border-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #f5f3ff 100%);
+            border: 2px solid #dbeafe;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .border-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .border-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e0e7ff;
+        }
+
+        .border-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .common-count {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .common-neighbors-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .neighbor-tag {
+            background-color: #dbeafe;
+            color: #312e81;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .results-container {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #c33;
+            text-align: center;
+        }
+
+        .country-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .flag-container {
+            text-align: center;
+        }
+
+        .flag {
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .info-main {
+            grid-column: 1 / -1;
+        }
+
+        .info-main h3 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .languages, .currencies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .tag-clickable {
+            cursor: pointer;
+        }
+        .tag-clickable:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .tag:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Tooltip Styling */
+        .tooltip {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: #333;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 10;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 200px;
+            text-align: center;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #333;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #cbd5e1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .country-info {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+  
+</head>
+<body>
+  
+  <div class="container">
+        <header>
+            <h1><i class="fas fa-globe-americas"></i> Country Information</h1>
+            <p class="subtitle">Select a country from the list to view detailed information</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-group">
+                <label class="search-label">
+                    <span id="map-icon"></span>
+                    Select Country
+                </label>
+                <div class="search-input">
+                    <input type="text" id="country-input" placeholder="Search for a country (e.g., Switzerland)...">
+                    <div id="search-results" class="search-results" style="display: none;"></div>
+                </div>
+                <div id="selected-country" class="selected-country" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="results-container">
+            <div class="results-header">
+                <h2>Country Information</h2>
+            </div>
+            
+            <div id="loading" class="loading" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading country information...</p>
+            </div>
+            
+            <div id="error" class="error" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="errorMessage"></span>
+            </div>
+            
+            <div id="noResults" class="no-results" style="display: none;">
+                <i class="fas fa-globe-europe"></i>
+                <h3>Select a country to view information</h3>
+                <p>Choose a country from the dropdown above</p>
+            </div>
+            
+            <div id="countryInfo" style="display: none;">
+                <!-- Country information will be populated here -->
+            </div>
+        </div>
+
+        <footer>
+            <p>Powered by REST Countries API | Country Information Example</p>
+            <p>© 2024 Country Information App</p>
+        </footer>
+    </div>
+
+  <script>
+    let countriesAll = [];
+    let cca3toName = {};
+    let countryBorders = [];
+    let code1 = "IND";
+    let code2= "PAK";
+
+    // State variables
+        let selectedCountry = '';
+
+        // DOM Elements
+        const countryInput = document.getElementById('country-input');
+        const searchResults = document.getElementById('search-results');
+        const selectedCountryEl = document.getElementById('selected-country');
+
+        
+      //let cntryList = '<option value="">-- Select a Country --</option>';
+      fetch(`https://restcountries.com/v3.1/all?fields=name,cca3,cca2,borders`)
+        .then(response => response.json())
+        .then(data => {
+         //console.log(data);
+         countriesAll = data;
+          countryBorders = Object.fromEntries(data.map(c => [c.cca3, c.borders]));
+          console.log(countryBorders);
+          const cnt1 = countryBorders['IND'];
+          const cnt2 = countryBorders['PAK'];
+          
+            //console.log(commonNeighbors);
+
+          cca3toName = Object.fromEntries(data.map(c => [c.cca3, c.name.common]));
+          //console.log(countryBorders['IND'])
+         // console.log(countriesAll['IND']);
+         /* const sortedNames = Object.values(cca3toName).sort();
+          sortedNames.forEach(name => {
+            const code = Object.keys(cca3toName).find(key => cca3toName[key] === name);
+            cntryList += `<option value="${code}">${name}</option>`;
+          });
+          document.getElementById('countrySelect').innerHTML = cntryList;
+          // Auto-load India on startup
+          document.getElementById('countrySelect').value = 'IND';
+          getCountryInfo('IND');
+          */
+        })
+        .catch(error => {
+          console.error('Error loading countries:', error);
+          document.getElementById('error').style.display = 'block';
+          document.getElementById('errorMessage').textContent = 'Failed to load country list.';
+        });
+    
+        
+/*
+    document.getElementById('getInfoBtn').addEventListener('click', () => {
+      const countryCode = document.getElementById('countrySelect').value;
+      if (countryCode) {
+        getCountryInfo(countryCode);
+      } else {
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('errorMessage').textContent = 'Please select a country.';
+        document.getElementById('countryInfo').style.display = 'none';
+      }
+    });
+    */
+
+     // Initialize
+   // loadCountryName();
+
+    function formatNumber(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function getCountryInfo(countryCode) {
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('error').style.display = 'none';
+      document.getElementById('countryInfo').style.display = 'none';
+
+      fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`)
+        .then(response => {
+          if (!response.ok) throw new Error('Country not found');
+          return response.json();
+        })
+        .then(data => {
+          displayCountryInfo(data[0]);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('error').style.display = 'block';
+          document.getElementById('errorMessage').textContent = 'Failed to load country data. Please try again.';
+        });
+    }
+
+    function displayCountryInfo(country) {
+      //console.log(country);
+      console.log(countriesAll)
+      const cBor = country.borders || [];
+      const name = country.name?.common || 'Unknown';
+      const officialName = country.name?.official || name;
+      const capital = country.capital?.[0] || 'Not available';
+      const region = country.region || 'Not available';
+      const subregion = country.subregion || 'Not available';
+      const population = country.population ? formatNumber(country.population) : 'Not available';
+      const area = country.area ? formatNumber(Math.round(country.area)) + ' km²' : 'Not available';
+      const languages = country.languages ? Object.values(country.languages) : [];
+      const currencies = country.currencies ? Object.values(country.currencies) : [];
+      const timezones = country.timezones?.[0] || 'Not available';
+      const flagUrl = country.flags?.svg || country.flags?.png || '';
+
+      const a3Toa2 = {
+        ABW: 'AW', AFG: 'AF', AGO: 'AO', AIA: 'AI', ALA: 'AX', ALB: 'AL',
+        AND: 'AD', ARE: 'AE', ARG: 'AR', ARM: 'AM', ASM: 'AS', ATA: 'AQ',
+        ATF: 'TF', ATG: 'AG', AUS: 'AU', AUT: 'AT', AZE: 'AZ', BDI: 'BI',
+        BEL: 'BE', BEN: 'BJ', BES: 'BQ', BFA: 'BF', BGD: 'BD', BGR: 'BG',
+        BHR: 'BH', BHS: 'BS', BIH: 'BA', BLM: 'BL', BLR: 'BY', BLZ: 'BZ',
+        BMU: 'BM', BOL: 'BO', BRA: 'BR', BRB: 'BB', BRN: 'BN', BTN: 'BT',
+        BVT: 'BV', BWA: 'BW', CAF: 'CF', CAN: 'CA', CCK: 'CC', CHE: 'CH',
+        CHL: 'CL', CHN: 'CN', CIV: 'CI', CMR: 'CM', COD: 'CD', COG: 'CG',
+        COK: 'CK', COL: 'CO', COM: 'KM', CPV: 'CV', CRI: 'CR', CUB: 'CU',
+        CUW: 'CW', CXR: 'CX', CYM: 'KY', CYP: 'CY', CZE: 'CZ', DEU: 'DE',
+        DJI: 'DJ', DMA: 'DM', DNK: 'DK', DOM: 'DO', DZA: 'DZ', ECU: 'EC',
+        EGY: 'EG', ERI: 'ER', ESH: 'EH', ESP: 'ES', EST: 'EE', ETH: 'ET',
+        FIN: 'FI', FJI: 'FJ', FLK: 'FK', FRA: 'FR', FRO: 'FO', FSM: 'FM',
+        GAB: 'GA', GBR: 'GB', GEO: 'GE', GGY: 'GG', GHA: 'GH', GIB: 'GI',
+        GIN: 'GN', GLP: 'GP', GMB: 'GM', GNB: 'GW', GNQ: 'GQ', GRC: 'GR',
+        GRD: 'GD', GRL: 'GL', GTM: 'GT', GUF: 'GF', GUM: 'GU', GUY: 'GY',
+        HKG: 'HK', HMD: 'HM', HND: 'HN', HRV: 'HR', HTI: 'HT', HUN: 'HU',
+        IDN: 'ID', IMN: 'IM', IND: 'IN', IOT: 'IO', IRL: 'IE', IRN: 'IR',
+        IRQ: 'IQ', ISL: 'IS', ISR: 'IL', ITA: 'IT', JAM: 'JM', JEY: 'JE',
+        JOR: 'JO', JPN: 'JP', KAZ: 'KZ', KEN: 'KE', KGZ: 'KG', KHM: 'KH',
+        KIR: 'KI', KNA: 'KN', KOR: 'KR', KWT: 'KW', LAO: 'LA', LBN: 'LB',
+        LBR: 'LR', LBY: 'LY', LCA: 'LC', LIE: 'LI', LKA: 'LK', LSO: 'LS',
+        LTU: 'LT', LUX: 'LU', LVA: 'LV', MAC: 'MO', MAF: 'MF', MAR: 'MA',
+        MCO: 'MC', MDA: 'MD', MDG: 'MG', MDV: 'MV', MEX: 'MX', MHL: 'MH',
+        MKD: 'MK', MLI: 'ML', MLT: 'MT', MMR: 'MM', MNE: 'ME', MNG: 'MN',
+        MNP: 'MP', MOZ: 'MZ', MRT: 'MR', MSR: 'MS', MTQ: 'MQ', MUS: 'MU',
+        MWI: 'MW', MYS: 'MY', MYT: 'YT', NAM: 'NA', NCL: 'NC', NER: 'NE',
+        NFK: 'NF', NGA: 'NG', NIC: 'NI', NIU: 'NU', NLD: 'NL', NOR: 'NO',
+        NPL: 'NP', NRU: 'NR', NZL: 'NZ', OMN: 'OM', PAK: 'PK', PAN: 'PA',
+        PCN: 'PN', PER: 'PE', PHL: 'PH', PLW: 'PW', PNG: 'PG', POL: 'PL',
+        PRI: 'PR', PRK: 'KP', PRT: 'PT', PRY: 'PY', PSE: 'PS', PYF: 'PF',
+        QAT: 'QA', REU: 'RE', ROU: 'RO', RUS: 'RU', RWA: 'RW', SAU: 'SA',
+        SDN: 'SD', SEN: 'SN', SGP: 'SG', SGS: 'GS', SHN: 'SH', SJM: 'SJ',
+        SLB: 'SB', SLE: 'SL', SLV: 'SV', SMR: 'SM', SOM: 'SO', SPM: 'PM',
+        SRB: 'RS', SSD: 'SS', STP: 'ST', SUR: 'SR', SVK: 'SK', SVN: 'SI',
+        SWE: 'SE', SWZ: 'SZ', SXM: 'SX', SYC: 'SC', SYR: 'SY', TCA: 'TC',
+        TCD: 'TD', TGO: 'TG', THA: 'TH', TJK: 'TJ', TKL: 'TK', TKM: 'TM',
+        TLS: 'TL', TON: 'TO', TTO: 'TT', TUN: 'TN', TUR: 'TR', TUV: 'TV',
+        TWN: 'TW', TZA: 'TZ', UGA: 'UG', UKR: 'UA', UMI: 'UM', URY: 'UY',
+        USA: 'US', UZB: 'UZ', VAT: 'VA', VCT: 'VC', VEN: 'VE', VGB: 'VG',
+        VIR: 'VI', VNM: 'VN', VUT: 'VU', WLF: 'WF', WSM: 'WS', YEM: 'YE',
+        ZAF: 'ZA', ZMB: 'ZM', ZWE: 'ZW'
+      };
+
+      const container = document.getElementById('countryInfo');
+      container.innerHTML = `
+        <div class="country-info">
+          <div class="flag-container">
+            ${flagUrl ? `<img src="${flagUrl}" alt="${name} flag" class="flag">` : ''}
+            <h3 style="margin-top: 20px; color: #333;">${name}</h3>
+            <p style="color: #666; font-size: 1.1rem;">${officialName}</p>
+            <div id="borders-container" class="borders-grid">
+               
+             <div class="border-card">
+                        
+                            
+            ${cBor.map(bor => `
+              <div class="border-header">
+                <div class="border-name">
+                <span class="tag tag-clickable" onclick="getCountryInfo('${bor}')">
+                ${bor}
+                <span class="tooltip">${cca3toName[bor] || bor}</span>
+              </span>
+              &nbsp;<span class="fi fi-${a3Toa2[bor]?.toLowerCase()}"></span>
+              &nbsp;<spaan class="tag">${getCommonNeighbors(country.cca3,bor).length}</span>
+              
+              
+             
+              
+            </div>
+            <div class="common-neighbors-list">
+                <span class="neighbor-tag">
+              ${getCommonNeighbors(country.cca3,bor).toString()}</span>
+              </div></div>
+            `).join('')}
+          
+          </div>
+          
+          <div>
+            <div class="info-main">
+              <h3>Country Details</h3>
+            </div>
+            <div class="info-grid">
+              <div class="info-card">
+                <div class="info-label">Capital</div>
+                <div class="info-value">${capital}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">Region</div>
+                <div class="info-value">${region}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">Subregion</div>
+                <div class="info-value">${subregion}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">Population</div>
+                <div class="info-value">${population}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">Area</div>
+                <div class="info-value">${area}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">Timezone</div>
+                <div class="info-value">${timezones}</div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">Languages</div>
+                <div class="languages">
+                  ${languages.map(lang => `<span class="tag">${lang}</span>`).join('')}
+                </div>
+              </div>
+              <div class="info-card">
+                <div class="info-label">Currencies</div>
+                <div class="currencies">
+                  ${currencies.map(currency => `<span class="tag">${currency.name} (${currency.symbol || 'N/A'})</span>`).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('countryInfo').style.display = 'block';
+    }
+
+    // common neighbours
+    function getCommonNeighbors(Code1,Code2){
+    console.log(code1);
+        const country1 = countryBorders[Code1];
+        console.log(countryBorders[code2])
+        const country2 = countryBorders[Code2];
+         //if (!country1 || !country2) return [];
+            
+            const commonNeighbors = country1.filter(border => 
+                country2.includes(border) && 
+                border !== Code2 && 
+                border !== Code1
+            );
+            
+            return commonNeighbors;
+    }
+  // console.log(getCommonNeighbors('IND','PAK'));
+   
+     // Search countries
+        function searchCountries(query) {
+            if (!query) return [];
+            return countriesAll
+                .filter(country => country.name.common.toLowerCase().includes(query.toLowerCase()))
+                .slice(0, 8);
+        }
+    // Update search results dropdown
+        function updateSearchResults(query) {
+            const results = searchCountries(query);
+            //console.log(results);
+            
+            if (query && results.length > 0) {
+                searchResults.innerHTML = '';
+                results.forEach(country => {
+                    const button = document.createElement('button');
+                    button.textContent = country.name.common;
+                    button.onclick = () => {
+                        searchResults.style.display = 'none';
+                        countryInput.value = '';
+                        getCountryInfo(country.cca3);
+
+                    }
+                    searchResults.appendChild(button);
+                });
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.style.display = 'none';
+            }
+        }
+
+    // Event listeners
+        countryInput.addEventListener('input', (e) => {
+            updateSearchResults(e.target.value);
+        });
+    
+    
+
+    // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-input')) {
+                searchResults.style.display = 'none';
+            }
+        });
+
+   
+  </script>
+</body>
+</html>
